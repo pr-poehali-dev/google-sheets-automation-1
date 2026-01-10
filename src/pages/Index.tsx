@@ -253,7 +253,7 @@ const Index = () => {
                   <Icon name="Brain" size={18} className="text-primary" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-sm mb-1">OpenAI GPT-4</h4>
+                  <h4 className="font-semibold text-sm mb-1">DeepSeek AI</h4>
                   <p className="text-xs text-muted-foreground">
                     Генерация умного кода с учётом контекста
                   </p>
