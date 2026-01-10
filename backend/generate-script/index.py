@@ -1,10 +1,10 @@
 import json
 import os
 import psycopg2
-import requests
+from openai import OpenAI
 
 def handler(event: dict, context) -> dict:
-    '''API для генерации Google Apps Script с использованием Polza.ai ChatGPT и сохранением в БД'''
+    '''API для генерации Google Apps Script с использованием OpenAI и сохранением в БД'''
     
     method = event.get('httpMethod', 'GET')
     
@@ -43,15 +43,15 @@ def handler(event: dict, context) -> dict:
                 'body': json.dumps({'error': 'Prompt is required'})
             }
         
-        polza_key = os.environ.get('POLZA_AI_API_KEY')
-        if not polza_key:
+        api_key = os.environ.get('API_KEY') or os.environ.get('OPENAI_API_KEY')
+        if not api_key:
             return {
                 'statusCode': 500,
                 'headers': {
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': json.dumps({'error': 'Polza.ai API key not configured'})
+                'body': json.dumps({'error': 'OpenAI API key not configured'})
             }
         
         system_prompt = """Ты эксперт по Google Apps Script. Твоя задача — генерировать чистый, работающий код для автоматизации работы с Google Sheets и Drive.
@@ -66,36 +66,19 @@ def handler(event: dict, context) -> dict:
 - Учитывай что пользователь работает с прайс-листами (артикулы, цены, остатки)
 """
         
-        response = requests.post(
-            'https://api.polza.ai/v1/chat/completions',
-            headers={
-                'Authorization': f'Bearer {polza_key}',
-                'Content-Type': 'application/json'
-            },
-            json={
-                'model': 'openai/gpt-4o',
-                'messages': [
-                    {'role': 'system', 'content': system_prompt},
-                    {'role': 'user', 'content': f'Создай Google Apps Script для следующей задачи:\n\n{prompt}'}
-                ],
-                'temperature': 0.7,
-                'max_tokens': 2000
-            },
-            timeout=60
+        client = OpenAI(api_key=api_key)
+        
+        response = client.chat.completions.create(
+            model='gpt-4o',
+            messages=[
+                {'role': 'system', 'content': system_prompt},
+                {'role': 'user', 'content': f'Создай Google Apps Script для следующей задачи:\n\n{prompt}'}
+            ],
+            temperature=0.7,
+            max_tokens=2000
         )
         
-        if response.status_code != 200:
-            return {
-                'statusCode': response.status_code,
-                'headers': {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
-                },
-                'body': json.dumps({'error': f'Polza.ai API error: {response.text}'})
-            }
-        
-        data = response.json()
-        generated_code = data['choices'][0]['message']['content'].strip()
+        generated_code = response.choices[0].message.content.strip()
         
         if generated_code.startswith('```'):
             lines = generated_code.split('\n')
