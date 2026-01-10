@@ -1,0 +1,24 @@
+{
+  "tests": [
+    {
+      "name": "Get all templates",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "templates": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get templates by category",
+      "method": "GET",
+      "path": "/?category=Обработка данных",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "templates": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

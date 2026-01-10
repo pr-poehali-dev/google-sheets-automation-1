@@ -1,0 +1,30 @@
+{
+  "tests": [
+    {
+      "name": "Generate script from prompt",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "prompt": "Создай функцию для суммирования чисел в столбце A"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "code": "string",
+        "script_id": "number",
+        "created_at": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing prompt returns error",
+      "method": "POST",
+      "path": "/",
+      "body": {},
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
