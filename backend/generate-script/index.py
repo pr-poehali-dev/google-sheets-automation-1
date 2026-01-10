@@ -4,7 +4,7 @@ import psycopg2
 import requests
 
 def handler(event: dict, context) -> dict:
-    '''API для генерации Google Apps Script через DeepSeek AI и сохранения в БД'''
+    '''API для генерации Google Apps Script через DeepSeek AI и сохранения в БД v2'''
     
     method = event.get('httpMethod', 'GET')
     
