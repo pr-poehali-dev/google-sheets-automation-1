@@ -1,0 +1,34 @@
+{
+  "name": "@ai-gas-generator/fa-fa",
+  "version": "1.0.0",
+  "description": "35 готовых иконок на базе Lucide React для быстрого старта проектов",
+  "main": "fa-fa.tsx",
+  "types": "fa-fa.tsx",
+  "keywords": [
+    "icons",
+    "lucide",
+    "react",
+    "typescript",
+    "ui",
+    "components",
+    "font-awesome-alternative"
+  ],
+  "author": "AI Google Apps Script Generator",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "lucide-react": "^0.263.0"
+  },
+  "files": [
+    "fa-fa.tsx",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "your-github-repo-url"
+  },
+  "homepage": "your-github-repo-url#readme",
+  "bugs": {
+    "url": "your-github-repo-url/issues"
+  }
+}

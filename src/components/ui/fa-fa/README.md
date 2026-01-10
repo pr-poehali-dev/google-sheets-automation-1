@@ -1,0 +1,264 @@
+# fa-fa - Icon Pack
+
+Пакет иконок на базе Lucide React для использования в React/TypeScript проектах.
+
+## 📦 Установка в другой проект
+
+### Вариант 1: Через GitHub (рекомендуется)
+
+1. **Подключите GitHub к проекту** через `Скачать → Подключить GitHub`
+2. **Скачайте файлы** из репозитория:
+   - `src/components/ui/fa-fa.tsx`
+   - `src/components/ui/fa-fa/package.json` (для npm публикации)
+
+3. **Установите зависимости** в целевом проекте:
+```bash
+npm install lucide-react
+# или
+bun add lucide-react
+```
+
+4. **Скопируйте файл** `fa-fa.tsx` в свой проект
+
+### Вариант 2: Прямое копирование
+
+1. Нажмите `Скачать → Скачать код` в редакторе poehali.dev
+2. Найдите файл `src/components/ui/fa-fa.tsx`
+3. Скопируйте в свой проект
+4. Установите `lucide-react`: `npm install lucide-react`
+
+### Вариант 3: NPM пакет (будущее)
+
+```bash
+npm install @your-scope/fa-fa
+```
+
+## 🚀 Использование
+
+### Основной компонент
+
+```tsx
+import FaFa from '@/components/ui/fa-fa';
+
+function App() {
+  return (
+    <div>
+      <FaFa name="Brain" size={24} className="text-primary" />
+      <FaFa name="Sparkles" size={16} />
+    </div>
+  );
+}
+```
+
+### Отдельные иконки
+
+```tsx
+import { 
+  BrainIcon, 
+  SparklesIcon, 
+  DatabaseIcon 
+} from '@/components/ui/fa-fa';
+
+function Header() {
+  return (
+    <header>
+      <BrainIcon size={20} className="text-blue-500" />
+      <SparklesIcon size={18} />
+    </header>
+  );
+}
+```
+
+### С fallback иконкой
+
+```tsx
+<FaFa name="CustomIcon" fallback="AlertCircle" size={20} />
+```
+
+## 📋 Доступные иконки (35 шт)
+
+### Навигация и интерфейс
+- `History` - История
+- `Clock` - Часы
+- `Inbox` - Входящие
+- `Settings` - Настройки
+- `ChevronUp` - Стрелка вверх
+- `ChevronDown` - Стрелка вниз
+- `ArrowRight` - Стрелка вправо
+- `X` - Закрыть
+
+### Действия
+- `Copy` - Копировать
+- `Check` - Галочка
+- `CheckCircle2` - Галочка в круге
+- `Zap` - Молния
+- `MousePointerClick` - Клик мышью
+
+### Коммуникация
+- `MessageSquare` - Сообщение
+- `Mail` - Почта
+- `Info` - Информация
+- `AlertCircle` - Предупреждение
+
+### Файлы и данные
+- `FileCode` - Файл с кодом
+- `FileSpreadsheet` - Таблица
+- `FolderOpen` - Открытая папка
+- `Database` - База данных
+- `Library` - Библиотека
+
+### Технологии
+- `Code2` - Код
+- `Brain` - Мозг (AI)
+- `Server` - Сервер
+- `Monitor` - Монитор
+- `Globe` - Глобус
+- `Shield` - Щит
+
+### Бизнес
+- `Store` - Магазин
+- `ShoppingCart` - Корзина
+- `Package` - Посылка
+- `TrendingUp` - Рост
+- `Key` - Ключ
+
+### Специальные
+- `Sparkles` - Искры (AI генерация)
+- `Lightbulb` - Лампочка (идея)
+
+## 🎨 Примеры использования
+
+### С Tailwind CSS
+
+```tsx
+<FaFa 
+  name="Brain" 
+  size={24} 
+  className="text-blue-600 hover:text-blue-800 transition-colors" 
+/>
+```
+
+### С анимацией
+
+```tsx
+<FaFa 
+  name="Sparkles" 
+  size={20} 
+  className="animate-pulse text-yellow-500" 
+/>
+```
+
+### В кнопке
+
+```tsx
+<button className="flex items-center gap-2">
+  <FaFa name="Copy" size={16} />
+  Копировать
+</button>
+```
+
+### В карточке
+
+```tsx
+<div className="flex items-center gap-3">
+  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+    <FaFa name="Database" size={20} className="text-primary" />
+  </div>
+  <div>
+    <h4>База данных</h4>
+    <p>PostgreSQL</p>
+  </div>
+</div>
+```
+
+## 🔧 Технические детали
+
+### Требования
+
+- React 18+
+- TypeScript 4.5+
+- lucide-react 0.263.0+
+
+### Type Safety
+
+Все иконки типизированы через `IconName`:
+
+```tsx
+type IconName = 
+  | 'History'
+  | 'Clock'
+  | 'Inbox'
+  // ... остальные
+
+interface FaFaProps extends Omit<LucideProps, 'ref'> {
+  name: IconName;
+  fallback?: IconName;
+}
+```
+
+### Props
+
+| Prop | Type | Default | Описание |
+|------|------|---------|----------|
+| `name` | `IconName` | - | Имя иконки (обязательно) |
+| `fallback` | `IconName` | `'AlertCircle'` | Запасная иконка |
+| `size` | `number` | `24` | Размер в пикселях |
+| `className` | `string` | - | CSS классы |
+| `color` | `string` | - | Цвет (поддерживает все форматы) |
+| `strokeWidth` | `number` | `2` | Толщина линий |
+
+## 🌐 Использование в других каналах
+
+### В React проектах (Vite, CRA, Next.js)
+
+```tsx
+// 1. Скопируйте fa-fa.tsx
+// 2. Установите lucide-react
+// 3. Импортируйте
+
+import FaFa from './components/ui/fa-fa';
+```
+
+### В HTML/JavaScript (через CDN)
+
+Если нужна версия без React, создайте SVG спрайт:
+
+```html
+<svg width="24" height="24">
+  <use href="#icon-brain"></use>
+</svg>
+```
+
+### В Vue.js проекте
+
+Конвертируйте в Vue компонент или используйте `lucide-vue-next`:
+
+```bash
+npm install lucide-vue-next
+```
+
+## 📄 Лицензия
+
+MIT - свободное использование в любых проектах
+
+## 🔗 Ссылки
+
+- Базовые иконки: [Lucide Icons](https://lucide.dev)
+- Документация Lucide React: [lucide.dev/guide/packages/lucide-react](https://lucide.dev/guide/packages/lucide-react)
+- Проект создан в: [poehali.dev](https://poehali.dev)
+
+## 💡 Добавление новых иконок
+
+Чтобы добавить новую иконку:
+
+1. Найдите нужную на [lucide.dev](https://lucide.dev/icons)
+2. Добавьте имя в тип `IconName`
+3. Создайте экспорт компонента:
+
+```tsx
+export const NewIcon: React.FC<LucideProps> = (props) => <FaFa name="NewIcon" {...props} />;
+```
+
+## 🤝 Поддержка
+
+Если нашли баг или хотите добавить иконку - создайте issue в репозитории GitHub проекта.
