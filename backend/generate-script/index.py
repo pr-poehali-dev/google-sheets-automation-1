@@ -1,10 +1,10 @@
 import json
 import os
 import psycopg2
-from openai import OpenAI
+import requests
 
 def handler(event: dict, context) -> dict:
-    '''API для генерации Google Apps Script с использованием OpenAI GPT-4 и сохранением в БД'''
+    '''API для генерации Google Apps Script с использованием Polza.ai ChatGPT и сохранением в БД'''
     
     method = event.get('httpMethod', 'GET')
     
@@ -43,24 +43,21 @@ def handler(event: dict, context) -> dict:
                 'body': json.dumps({'error': 'Prompt is required'})
             }
         
-        openai_key = os.environ.get('API_KEY') or os.environ.get('OPENAI_API_KEY')
-        if not openai_key:
+        polza_key = os.environ.get('POLZA_AI_API_KEY')
+        if not polza_key:
             return {
                 'statusCode': 500,
                 'headers': {
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': json.dumps({'error': 'OpenAI API key not configured'})
+                'body': json.dumps({'error': 'Polza.ai API key not configured'})
             }
-        
-        base_url = os.environ.get('OPENAI_BASE_URL', 'https://api.openai.com/v1')
-        client = OpenAI(api_key=openai_key, base_url=base_url)
         
         system_prompt = """Ты эксперт по Google Apps Script. Твоя задача — генерировать чистый, работающий код для автоматизации работы с Google Sheets и Drive.
 
 Требования:
-- Генерируй только код функций, без объяснений
+- Генерируй только код функций, без объяснений и без маркдауна
 - Используй современный JavaScript синтаксис
 - Добавляй комментарии на русском языке
 - Включай обработку ошибок где необходимо
@@ -69,21 +66,44 @@ def handler(event: dict, context) -> dict:
 - Учитывай что пользователь работает с прайс-листами (артикулы, цены, остатки)
 """
         
-        response = client.chat.completions.create(
-            model='gpt-4',
-            messages=[
-                {'role': 'system', 'content': system_prompt},
-                {'role': 'user', 'content': f'Создай Google Apps Script для следующей задачи:\n\n{prompt}'}
-            ],
-            temperature=0.7,
-            max_tokens=2000
+        response = requests.post(
+            'https://api.polza.ai/v1/chat/completions',
+            headers={
+                'Authorization': f'Bearer {polza_key}',
+                'Content-Type': 'application/json'
+            },
+            json={
+                'model': 'openai/gpt-4o',
+                'messages': [
+                    {'role': 'system', 'content': system_prompt},
+                    {'role': 'user', 'content': f'Создай Google Apps Script для следующей задачи:\n\n{prompt}'}
+                ],
+                'temperature': 0.7,
+                'max_tokens': 2000
+            },
+            timeout=60
         )
         
-        generated_code = response.choices[0].message.content.strip()
+        if response.status_code != 200:
+            return {
+                'statusCode': response.status_code,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'error': f'Polza.ai API error: {response.text}'})
+            }
+        
+        data = response.json()
+        generated_code = data['choices'][0]['message']['content'].strip()
         
         if generated_code.startswith('```'):
             lines = generated_code.split('\n')
-            generated_code = '\n'.join(lines[1:-1]) if len(lines) > 2 else generated_code
+            if lines[0].startswith('```'):
+                lines = lines[1:]
+            if lines and lines[-1].startswith('```'):
+                lines = lines[:-1]
+            generated_code = '\n'.join(lines)
         
         db_url = os.environ.get('DATABASE_URL')
         schema = os.environ.get('MAIN_DB_SCHEMA', 'public')
