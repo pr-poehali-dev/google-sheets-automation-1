@@ -1,10 +1,9 @@
 import json
 import os
 import psycopg2
-from openai import OpenAI
 
 def handler(event: dict, context) -> dict:
-    '''API для генерации Google Apps Script с использованием OpenAI и сохранением в БД'''
+    '''API для генерации Google Apps Script и сохранения в БД (mock-режим без AI)'''
     
     method = event.get('httpMethod', 'GET')
     
@@ -30,7 +29,10 @@ def handler(event: dict, context) -> dict:
         }
     
     try:
-        body = json.loads(event.get('body', '{}'))
+        body_str = event.get('body', '{}')
+        if not body_str:
+            body_str = '{}'
+        body = json.loads(body_str)
         prompt = body.get('prompt', '').strip()
         
         if not prompt:
@@ -43,50 +45,27 @@ def handler(event: dict, context) -> dict:
                 'body': json.dumps({'error': 'Prompt is required'})
             }
         
-        api_key = os.environ.get('API_KEY') or os.environ.get('OPENAI_API_KEY')
-        if not api_key:
-            return {
-                'statusCode': 500,
-                'headers': {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
-                },
-                'body': json.dumps({'error': 'OpenAI API key not configured'})
-            }
-        
-        system_prompt = """Ты эксперт по Google Apps Script. Твоя задача — генерировать чистый, работающий код для автоматизации работы с Google Sheets и Drive.
+        # Mock-генерация без AI
+        generated_code = f"""// Скрипт для задачи: {prompt[:100]}...
 
-Требования:
-- Генерируй только код функций, без объяснений и без маркдауна
-- Используй современный JavaScript синтаксис
-- Добавляй комментарии на русском языке
-- Включай обработку ошибок где необходимо
-- Используй Logger.log для отладки
-- Создавай функцию onOpen() для меню если требуется автоматизация
-- Учитывай что пользователь работает с прайс-листами (артикулы, цены, остатки)
-"""
-        
-        client = OpenAI(api_key=api_key)
-        
-        response = client.chat.completions.create(
-            model='gpt-4o',
-            messages=[
-                {'role': 'system', 'content': system_prompt},
-                {'role': 'user', 'content': f'Создай Google Apps Script для следующей задачи:\n\n{prompt}'}
-            ],
-            temperature=0.7,
-            max_tokens=2000
-        )
-        
-        generated_code = response.choices[0].message.content.strip()
-        
-        if generated_code.startswith('```'):
-            lines = generated_code.split('\n')
-            if lines[0].startswith('```'):
-                lines = lines[1:]
-            if lines and lines[-1].startswith('```'):
-                lines = lines[:-1]
-            generated_code = '\n'.join(lines)
+function main() {{
+  const sheet = SpreadsheetApp.getActiveSheet();
+  const data = sheet.getDataRange().getValues();
+  
+  Logger.log('Обработка данных...');
+  
+  // TODO: Реализовать логику на основе запроса:
+  // {prompt[:200]}
+  
+  SpreadsheetApp.getUi().alert('Скрипт выполнен!');
+}}
+
+function onOpen() {{
+  const ui = SpreadsheetApp.getUi();
+  ui.createMenu('Автоматизация')
+    .addItem('Запустить', 'main')
+    .addToUi();
+}}"""
         
         db_url = os.environ.get('DATABASE_URL')
         schema = os.environ.get('MAIN_DB_SCHEMA', 'public')
