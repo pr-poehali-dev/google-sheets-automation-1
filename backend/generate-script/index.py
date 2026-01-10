@@ -1,9 +1,10 @@
 import json
 import os
 import psycopg2
+import requests
 
 def handler(event: dict, context) -> dict:
-    '''API для генерации Google Apps Script и сохранения в БД (mock-режим без AI)'''
+    '''API для генерации Google Apps Script через DeepSeek AI и сохранения в БД'''
     
     method = event.get('httpMethod', 'GET')
     
@@ -45,27 +46,59 @@ def handler(event: dict, context) -> dict:
                 'body': json.dumps({'error': 'Prompt is required'})
             }
         
-        # Mock-генерация без AI
-        generated_code = f"""// Скрипт для задачи: {prompt[:100]}...
-
-function main() {{
-  const sheet = SpreadsheetApp.getActiveSheet();
-  const data = sheet.getDataRange().getValues();
-  
-  Logger.log('Обработка данных...');
-  
-  // TODO: Реализовать логику на основе запроса:
-  // {prompt[:200]}
-  
-  SpreadsheetApp.getUi().alert('Скрипт выполнен!');
-}}
-
-function onOpen() {{
-  const ui = SpreadsheetApp.getUi();
-  ui.createMenu('Автоматизация')
-    .addItem('Запустить', 'main')
-    .addToUi();
-}}"""
+        api_key = os.environ.get('DEEPSEEK_API_KEY')
+        if not api_key:
+            return {
+                'statusCode': 500,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'error': 'DEEPSEEK_API_KEY not configured'})
+            }
+        
+        system_prompt = """Ты эксперт по Google Apps Script. Генерируй ТОЛЬКО код без объяснений.
+Требования:
+- Код должен быть готов к использованию
+- Комментарии на русском языке
+- Обрабатывай ошибки
+- Используй современный синтаксис JavaScript
+- Добавь функцию onOpen() с меню"""
+        
+        response = requests.post(
+            'https://api.deepseek.com/v1/chat/completions',
+            headers={
+                'Authorization': f'Bearer {api_key}',
+                'Content-Type': 'application/json'
+            },
+            json={
+                'model': 'deepseek-chat',
+                'messages': [
+                    {'role': 'system', 'content': system_prompt},
+                    {'role': 'user', 'content': f'Создай Google Apps Script для задачи: {prompt}'}
+                ],
+                'temperature': 0.3,
+                'max_tokens': 2000
+            },
+            timeout=30
+        )
+        
+        if response.status_code != 200:
+            return {
+                'statusCode': 500,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'error': f'DeepSeek API error: {response.status_code}'})
+            }
+        
+        result = response.json()
+        generated_code = result['choices'][0]['message']['content'].strip()
+        
+        if generated_code.startswith('```'):
+            lines = generated_code.split('\n')
+            generated_code = '\n'.join(lines[1:-1]) if len(lines) > 2 else generated_code
         
         db_url = os.environ.get('DATABASE_URL')
         schema = os.environ.get('MAIN_DB_SCHEMA', 'public')

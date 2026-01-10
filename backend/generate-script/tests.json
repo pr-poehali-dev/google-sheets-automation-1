@@ -10,6 +10,20 @@
         "error": "string"
       },
       "bodyMatcher": "partial"
+    },
+    {
+      "name": "Generate script with valid prompt",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "prompt": "Создай простой скрипт для отправки email"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "code": "string",
+        "script_id": "number"
+      },
+      "bodyMatcher": "partial"
     }
   ]
 }
