@@ -46,6 +46,40 @@ const Index = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
+  const complexExample = `У меня 3 прайс-листа от разных поставщиков с разными форматами артикулов:
+
+**Поставщик 1 (1С:Предприятие):**
+- Формат: "АРТ-12345-RU"
+- Пример: АРТ-54821-RU, АРТ-99102-RU, АРТ-03344-RU
+
+**Поставщик 2 (SAP):**
+- Формат: "SKU_12345_V2"
+- Пример: SKU_54821_V2, SKU_99102_V1, SKU_03344_V2
+
+**Поставщик 3 (Wildberries):**
+- Формат: "WB/12345/2024"
+- Пример: WB/54821/2024, WB/99102/2023, WB/03344/2024
+
+**Задача:**
+Нужен скрипт, который:
+1. Извлекает ТОЛЬКО цифровую часть артикула (core ID) из всех 3 форматов
+2. Группирует товары с одинаковым core ID (54821 = 54821 = 54821)
+3. Создаёт сводную таблицу со столбцами:
+   - Core ID
+   - Название товара (из первого найденного источника)
+   - Цена Поставщик 1
+   - Цена Поставщик 2  
+   - Цена Поставщик 3
+   - Минимальная цена
+   - Остаток Поставщик 1
+   - Остаток Поставщик 2
+   - Остаток Поставщик 3
+   - Общий остаток
+4. Игнорирует артикулы, которые не соответствуют ни одному формату
+5. Сортирует по минимальной цене
+
+Файлы в Google Drive в папке "Прайсы синхронизация", листы называются "Поставщик1", "Поставщик2", "Поставщик3".`;
+
   useEffect(() => {
     loadTemplates();
     loadHistory();
@@ -186,6 +220,28 @@ const Index = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="flex gap-2 mb-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPrompt(complexExample)}
+                  className="text-xs"
+                >
+                  <Icon name="Sparkles" size={14} className="mr-1" />
+                  Сложный пример
+                </Button>
+                {prompt && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setPrompt('')}
+                    className="text-xs"
+                  >
+                    <Icon name="X" size={14} className="mr-1" />
+                    Очистить
+                  </Button>
+                )}
+              </div>
               <Textarea
                 placeholder="Например: Найти все ячейки с пустыми ценами и подсветить их красным цветом, затем отправить уведомление на email..."
                 value={prompt}
