@@ -6,6 +6,7 @@ import GeneratorForm from '@/components/generator/GeneratorForm';
 import TemplatesLibrary from '@/components/generator/TemplatesLibrary';
 import GenerationHistory from '@/components/generator/GenerationHistory';
 import SettingsPanel from '@/components/generator/SettingsPanel';
+import HowItWorks from '@/components/generator/HowItWorks';
 
 type GenerationStage = 'idle' | 'analyzing' | 'generating' | 'validating' | 'complete';
 
@@ -238,6 +239,10 @@ const Index = () => {
             setSettings={setSettings}
             onCopySettings={handleCopySettings}
           />
+        </div>
+
+        <div className="mt-6">
+          <HowItWorks />
         </div>
 
         <div className="mt-6 grid md:grid-cols-3 gap-3 animate-fade-in">
