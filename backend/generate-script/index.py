@@ -4,7 +4,7 @@ import psycopg2
 from openai import OpenAI
 
 def handler(event: dict, context) -> dict:
-    '''API для генерации Google Apps Script с использованием OpenAI GPT-4'''
+    '''API для генерации Google Apps Script с использованием OpenAI GPT-4 и сохранением в БД'''
     
     method = event.get('httpMethod', 'GET')
     
@@ -43,7 +43,7 @@ def handler(event: dict, context) -> dict:
                 'body': json.dumps({'error': 'Prompt is required'})
             }
         
-        openai_key = os.environ.get('OPENAI_API_KEY')
+        openai_key = os.environ.get('API_KEY') or os.environ.get('OPENAI_API_KEY')
         if not openai_key:
             return {
                 'statusCode': 500,
@@ -54,7 +54,8 @@ def handler(event: dict, context) -> dict:
                 'body': json.dumps({'error': 'OpenAI API key not configured'})
             }
         
-        client = OpenAI(api_key=openai_key)
+        base_url = os.environ.get('OPENAI_BASE_URL', 'https://api.openai.com/v1')
+        client = OpenAI(api_key=openai_key, base_url=base_url)
         
         system_prompt = """Ты эксперт по Google Apps Script. Твоя задача — генерировать чистый, работающий код для автоматизации работы с Google Sheets и Drive.
 
