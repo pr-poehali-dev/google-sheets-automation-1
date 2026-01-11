@@ -64,18 +64,16 @@ def handler(event: dict, context) -> dict:
         system_prompt = """Создай рабочий Google Apps Script код. Только код, без объяснений.
         
 Важно:
-- Если нужен доступ к Google Drive папке, используй DriveApp.getFolderById(folderId) или DriveApp.getFileById(fileId)
-- Для доступа к папке сгенерируй прямую ссылку: https://drive.google.com/drive/folders/{FOLDER_ID}
-- Для файла: https://drive.google.com/file/d/{FILE_ID}/view
-- Обязательно проверяй права доступа через folder.getAccess() и делай folder.setSharing() если нужно"""
+- Если нужен доступ к Google Drive, извлекай ID из полной ссылки: const folderId = url.match(/folders\/([a-zA-Z0-9_-]+)/)[1]
+- Используй DriveApp.getFolderById(folderId) для работы с папкой
+- Обязательно проверяй права доступа через folder.getAccess()"""
         
         context_info = f"""Создай Google Apps Script для задачи: {prompt}
         
 Доступные параметры из настроек:"""
         
         if price_folder_id:
-            context_info += f"\n- ID папки с прайсами Google Drive: {price_folder_id}"
-            context_info += f"\n- Прямая ссылка на папку: https://drive.google.com/drive/folders/{price_folder_id}"
+            context_info += f"\n- Ссылка на папку с прайсами Google Drive: {price_folder_id}"
         if opencart_url:
             context_info += f"\n- OpenCart API URL: {opencart_url}"
         if opencart_api_key:

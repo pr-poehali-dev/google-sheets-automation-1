@@ -102,17 +102,17 @@ const SettingsPanel = ({
             <div className="space-y-2">
               <label className="text-sm font-medium flex items-center gap-2">
                 <Icon name="FolderOpen" size={14} />
-                ID папки с прайсами (Google Drive)
+                Ссылка на папку с прайсами (Google Drive)
               </label>
               <input
-                type="text"
-                placeholder="1a2B3c4D5e6F7g8H9i0J"
+                type="url"
+                placeholder="https://drive.google.com/drive/folders/1a2B3c4D5e6F7g8H9i0J"
                 value={settings.priceFolderId}
                 onChange={(e) => setSettings({...settings, priceFolderId: e.target.value})}
                 className="w-full px-3 py-2 border rounded-md text-sm font-mono"
               />
               <p className="text-xs text-muted-foreground">
-                ID папки из URL: <a href="https://drive.google.com/drive/my-drive" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">drive.google.com/drive/folders/<strong>ID_ЗДЕСЬ</strong></a>
+                Вставьте полную ссылку на папку. <a href="https://drive.google.com/drive/my-drive" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Открыть Google Drive →</a>
               </p>
             </div>
           </div>
