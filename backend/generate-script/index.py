@@ -35,6 +35,10 @@ def handler(event: dict, context) -> dict:
             body_str = '{}'
         body = json.loads(body_str)
         prompt = body.get('prompt', '').strip()
+        price_folder_id = body.get('priceFolderId', '').strip()
+        opencart_url = body.get('opencartUrl', '').strip()
+        opencart_api_key = body.get('opencartApiKey', '').strip()
+        admin_email = body.get('adminEmail', '').strip()
         
         if not prompt:
             return {
@@ -57,7 +61,27 @@ def handler(event: dict, context) -> dict:
                 'body': json.dumps({'error': 'DEEPSEEK_API_KEY not configured'})
             }
         
-        system_prompt = "Создай рабочий Google Apps Script код. Только код, без объяснений."
+        system_prompt = """Создай рабочий Google Apps Script код. Только код, без объяснений.
+        
+Важно:
+- Если нужен доступ к Google Drive папке, используй DriveApp.getFolderById(folderId) или DriveApp.getFileById(fileId)
+- Для доступа к папке сгенерируй прямую ссылку: https://drive.google.com/drive/folders/{FOLDER_ID}
+- Для файла: https://drive.google.com/file/d/{FILE_ID}/view
+- Обязательно проверяй права доступа через folder.getAccess() и делай folder.setSharing() если нужно"""
+        
+        context_info = f"""Создай Google Apps Script для задачи: {prompt}
+        
+Доступные параметры из настроек:"""
+        
+        if price_folder_id:
+            context_info += f"\n- ID папки с прайсами Google Drive: {price_folder_id}"
+            context_info += f"\n- Прямая ссылка на папку: https://drive.google.com/drive/folders/{price_folder_id}"
+        if opencart_url:
+            context_info += f"\n- OpenCart API URL: {opencart_url}"
+        if opencart_api_key:
+            context_info += f"\n- OpenCart API Key доступен через PropertiesService.getScriptProperties().getProperty('OPENCART_API_KEY')"
+        if admin_email:
+            context_info += f"\n- Email администратора для уведомлений: {admin_email}"
         
         response = requests.post(
             'https://api.deepseek.com/v1/chat/completions',
@@ -69,7 +93,7 @@ def handler(event: dict, context) -> dict:
                 'model': 'deepseek-chat',
                 'messages': [
                     {'role': 'system', 'content': system_prompt},
-                    {'role': 'user', 'content': f'Создай Google Apps Script для задачи: {prompt}'}
+                    {'role': 'user', 'content': context_info}
                 ],
                 'temperature': 0.3,
                 'max_tokens': 1000,
