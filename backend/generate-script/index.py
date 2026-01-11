@@ -57,13 +57,7 @@ def handler(event: dict, context) -> dict:
                 'body': json.dumps({'error': 'DEEPSEEK_API_KEY not configured'})
             }
         
-        system_prompt = """Ты эксперт по Google Apps Script. Генерируй ТОЛЬКО код без объяснений.
-Требования:
-- Код должен быть готов к использованию
-- Комментарии на русском языке
-- Обрабатывай ошибки
-- Используй современный синтаксис JavaScript
-- Добавь функцию onOpen() с меню"""
+        system_prompt = "Создай рабочий Google Apps Script код. Только код, без объяснений."
         
         response = requests.post(
             'https://api.deepseek.com/v1/chat/completions',
@@ -78,9 +72,10 @@ def handler(event: dict, context) -> dict:
                     {'role': 'user', 'content': f'Создай Google Apps Script для задачи: {prompt}'}
                 ],
                 'temperature': 0.3,
-                'max_tokens': 2000
+                'max_tokens': 1000,
+                'stream': False
             },
-            timeout=30
+            timeout=20
         )
         
         if response.status_code != 200:
@@ -133,6 +128,15 @@ def handler(event: dict, context) -> dict:
             })
         }
         
+    except requests.exceptions.Timeout:
+        return {
+            'statusCode': 504,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({'error': 'DeepSeek API timeout - запрос занял больше 25 секунд'})
+        }
     except Exception as e:
         return {
             'statusCode': 500,
