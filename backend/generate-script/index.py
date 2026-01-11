@@ -75,7 +75,7 @@ def handler(event: dict, context) -> dict:
                 'max_tokens': 1000,
                 'stream': False
             },
-            timeout=20
+            timeout=28
         )
         
         if response.status_code != 200:

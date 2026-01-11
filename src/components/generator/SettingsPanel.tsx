@@ -112,7 +112,7 @@ const SettingsPanel = ({
                 className="w-full px-3 py-2 border rounded-md text-sm font-mono"
               />
               <p className="text-xs text-muted-foreground">
-                ID папки из URL: drive.google.com/drive/folders/<strong>ID_ЗДЕСЬ</strong>
+                ID папки из URL: <a href="https://drive.google.com/drive/my-drive" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">drive.google.com/drive/folders/<strong>ID_ЗДЕСЬ</strong></a>
               </p>
             </div>
           </div>
