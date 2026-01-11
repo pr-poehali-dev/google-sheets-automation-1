@@ -46,7 +46,7 @@ def handler(event: dict, context) -> dict:
                 'body': json.dumps({'error': 'Prompt is required'})
             }
         
-        api_key = os.environ.get('DEEP_SEEK_API_KEY')
+        api_key = os.environ.get('DEEPSEEK_API_KEY')
         if not api_key:
             return {
                 'statusCode': 500,
@@ -54,7 +54,7 @@ def handler(event: dict, context) -> dict:
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': json.dumps({'error': 'DEEP_SEEK_API_KEY not configured'})
+                'body': json.dumps({'error': 'DEEPSEEK_API_KEY not configured'})
             }
         
         system_prompt = """Ты эксперт по Google Apps Script. Генерируй ТОЛЬКО код без объяснений.
